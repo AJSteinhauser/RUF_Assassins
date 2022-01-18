@@ -16,12 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from start_page.views import rules, home
-from login.views import signup, login
+from login.views import signup, login, logout, verify_pin
 
 urlpatterns = [
     path('home/', home, name="home"),
     path('rules/', rules, name="rules"),
     path('signup/', signup, name="signup"),
     path('login/', login, name="login"),
+    path('logout/', logout, name="logout"),
+    path('verify/', verify_pin, name="verify_pin"),
     path('admin/', admin.site.urls),
 ]

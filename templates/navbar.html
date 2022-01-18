@@ -22,20 +22,45 @@
                 <li><a href="{% url 'home' %}" class="nav-link px-2 link-dark">Home</a></li>
                 <li><a href="{% url 'rules' %}" class="nav-link px-2 link-dark">Rules</a></li>
                 <li><a href="#" class="nav-link px-2 link-primary">Live Stats</a></li>
+                {% if request.session.user_id %}
+                    <li><a href="#" class="nav-link px-2 link-danger">Target</a></li>
+                {% endif %}
             </ul>
 
             <div class="col-md-3 text-end">
                 <div class="d-flex flex-wrap align-items-right justify-content-right text-end">
+                    {% if not request.session.user_id %}
                         <form action="{% url 'login' %}">
                             <button type="submit" class="btn btn-outline-primary me-2">Login</button>
                         </form>
                         <form action="{% url 'signup' %}">
                             <button type="submit"  href="{% url 'signup' %}" class="btn btn-primary">Sign-up</button>
                         </form>
+                    {% else %}
+                    <form action="{% url 'logout' %}">
+                        <button type="submit"  href="{% url 'logout' %}" class="btn btn-primary">Log Out</button>
+                    </form>
+                    {% endif %}
                     </div>
+             
                 </div>
             </div>
+
         </header>
+        {% if request.session.user_id and not mode == "verifying" %}
+        <div class="d-flex flex-column justify-content-center" style="max-width: 80%; margin-left: 10%;">
+            {% if not request.session.verified %}
+            <div class="alert alert-danger" role="alert">
+                Failure to verify pin before game start will remove you from the game
+            </div>
+            {% endif %}
+            {% if not request.session.image_uploaded %}
+            <div class="alert alert-danger" role="alert">
+                Failure to upload portrait before game start will remove you from the game
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>

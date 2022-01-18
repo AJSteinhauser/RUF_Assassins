@@ -17,23 +17,30 @@
         <main>
             {% include './navbar.html' %}
             <div class="d-flex justify-content-center">
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{error}}
+                </div>
+                {% endif %}
+            </div>
+            <div class="d-flex justify-content-center">
                 <div class="shadow-lg p-3 mb-5 bg-white rounded jumbotron justify-center" style="width: 80%; max-width: 500px">
-                    <form>
+                    
                         <div class="d-flex justify-content-center">
                             <img src="{% static '/assets/black_topbar.png' %}" height="100" width="200">
                         </div>
-                        <div class="form-group">
+                        <form method="POST"> {% csrf_token %}
+                            <label for="FirstName">First Name:</label>
+                            <input name="first" required type="text" class="form-control" id="firstname" placeholder="">
+                            <label for="LastName">Last Name:</label>
+                            <input name="last" required type="text" class="form-control" id="lastname" placeholder="">
                             <label for="phonenumber">Phone Number:</label>
-                            <input type="phone" class="form-control" id="phonenumber" aria-describedby="phoneHelp" placeholder="">
+                            <input name="phone" required type="tel" class="form-control" id="phonenumber" aria-describedby="phoneHelp" placeholder="xxxxxxxxxx">
                             <small id="phoneHelp" class="form-text text-muted">This is used to update you on game progress</small><br>
                             <label for="password">Password:</label>
-                            <input type="password" class="form-control" id="password" placeholder="">
-                            <label for="FirstName">First Name:</label>
-                            <input type="name" class="form-control" id="FirstName" placeholder="">
-                            <label for="LastName">Last Name:</label>
-                            <input type="name" class="form-control" id="LastName" placeholder="">
-                        </div>
-                        <button type="submit" style="margin-top: 10px;" class="btn btn-primary">Create Account</button>
+                            <input name="password" required type="password" class="form-control" id="password" placeholder="">
+                            <button type="submit" style="margin-top: 10px;" class="btn btn-primary">Create Account</button>
+                        </form>
                     </form>  
                 </div>   
             </div>         
