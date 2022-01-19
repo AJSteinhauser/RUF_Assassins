@@ -9,6 +9,7 @@ class User(models.Model):
     phone_num = models.PositiveIntegerField(blank=True, null=True, unique = True);
     user_pass = models.CharField(max_length=50, blank=True, null=True);
     isAdmin = models.BooleanField(default=False);
+    image_uploaded = models.BooleanField(default=False);
     phone_verified = models.BooleanField(default=False);
     verify_pin = models.CharField(max_length=4, blank=True, null=True)
     class Meta:

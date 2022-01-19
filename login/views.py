@@ -29,7 +29,30 @@ def generate_pin(length):
     return pin
 
 
-
+def verify_pin(request):
+    context = {}
+    context['mode'] = "verifying"
+    if not request.session.has_key('user_id'):
+        return redirect('home')
+    obj = User.objects.get(user_id=request.session['user_id'])
+    if obj.phone_verified:
+        return redirect('home')
+    if request.method == 'POST':
+        if obj.verify_pin == request.POST["pin"]:
+            obj.phone_verified = True
+            obj.save()
+            if request.session.has_key("not_verified"):
+                del request.session["not_verified"]
+            return redirect('home')
+    account_sid = 'AC4253ac2fc098bda1942fe5a909b8588e'
+    auth_token = '617e14e9a649e8d7ca1ed0b8058ee893'
+    client = Client(account_sid, auth_token)
+    message = client.messages.create(
+        messaging_service_sid='MGf469f3b069d1008e337e65ed3fe9a062',
+        body=('Your pin for RUF Assassins is: ' + str(obj.verify_pin)),   
+        to='+1' + str(obj.phone_num)
+    )
+    return render(request, 'confirm_phone.html', context)
 
 def signup(request):
     context = {};
@@ -58,41 +81,31 @@ def signup(request):
             return redirect(verify_pin)
     return render(request, 'signup.html', context)
 
-
 def login(request):
+    context = {}
     if request.session.has_key('user_id'):
-        return redirect(home);
+        return redirect(home)
     if request.method == 'POST':
-        a = None
-    return render(request, 'login.html', {})
+        try:
+            obj = User.objects.get(phone_num=request.POST["phone"])
+            if request.POST['pass'] == obj.user_pass: 
+                request.session['user_id'] = obj.user_id
+                if not obj.image_uploaded:
+                    request.session['image_not_uploaded'] = True
+                if not obj.phone_verified:
+                    request.session['not_verified'] = True
+                return redirect(home)
+            context['error'] = 'No account with that phone number and password exists'
+        except:
+            context['error'] = 'No account with that phone number & password exists'
+    return render(request, 'login.html', context)
 
 def logout(request):
     if request.session.has_key('user_id'):
         del request.session['user_id']
+    if request.session.has_key('not_verified'):
+        del request.session['not_verified']
+    if request.session.has_key('image_not_uploaded'):
+        del request.session['image_not_uploaded']
     return redirect('home')
 
-
-def verify_pin(request):
-    context = {}
-    context['mode'] = "verifying"
-    if not request.session.has_key('user_id'):
-        return redirect('home')
-    obj = User.objects.get(user_id=request.session['user_id'])
-    if request.method == 'POST':
-        if obj.verify_pin == request.POST["pin"]: 
-            obj.phone_verified = True;
-            obj.save()
-            if request.session.has_key("not_verified"):
-                del request.session["not_verified"]
-            return redirect('home')
-    
-    account_sid = 'AC4253ac2fc098bda1942fe5a909b8588e' 
-    auth_token = '617e14e9a649e8d7ca1ed0b8058ee893' 
-    client = Client(account_sid, auth_token) 
-
-    message = client.messages.create(  
-                        messaging_service_sid='MGf469f3b069d1008e337e65ed3fe9a062', 
-                        body=('Your pin for RUF Assassins is: ' + str(obj.verify_pin)),      
-                        to='+1' + str(obj.phone_num)
-                    ) 
-    return render(request, 'confirm_phone.html', context)
