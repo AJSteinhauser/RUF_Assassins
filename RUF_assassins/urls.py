@@ -24,6 +24,6 @@ urlpatterns = [
     path('signup/', signup, name="signup"),
     path('login/', login, name="login"),
     path('logout/', logout, name="logout"),
-    path('verify/', verify_pin, name="verify_pin"),
+    path('verify/', verify_pin, name="verifypin"),
     path('admin/', admin.site.urls),
 ]

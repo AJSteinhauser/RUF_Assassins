@@ -36,11 +36,9 @@
                             <small style="margin-bottom: 15px;" id="phoneHelp" class="form-text text-muted">Enter the code just sent to your phone number</small><br>
                         </div>
                         <form method="POST"> {% csrf_token %}
-                           
-                            <input name="password" required type="password" class="form-control" id="password" placeholder="Pin">
-                            <button type="submit" style="margin-top: 10px;" class="btn btn-primary">Confirm</button>
-                        </form>
-                    </form>  
+                            <input name="pin" required type="password" class="form-control" id="password" placeholder="Pin">
+                            <button type="submit" style="margin-top: 10px; display: block; margin-left: auto; margin-right: 0;" class="btn btn-primary">Confirm</button>                        </form>
+                        </form>  
                 </div>   
             </div>         
         </main>

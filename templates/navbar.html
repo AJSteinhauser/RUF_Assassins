@@ -49,14 +49,18 @@
         </header>
         {% if request.session.user_id and not mode == "verifying" %}
         <div class="d-flex flex-column justify-content-center" style="max-width: 80%; margin-left: 10%;">
-            {% if not request.session.verified %}
+            {% if request.session.not_verified %}
             <div class="alert alert-danger" role="alert">
-                Failure to verify pin before game start will remove you from the game
+                <a href="{% url 'verifypin' %}" style="text-decoration: none; color: #842029">
+                    Failure to verify pin before game start will remove you from the game. Click here to verify your phone
+                </a>
             </div>
             {% endif %}
-            {% if not request.session.image_uploaded %}
+            {% if request.session.image_not_uploaded %}
             <div class="alert alert-danger" role="alert">
-                Failure to upload portrait before game start will remove you from the game
+                <a href="{% url 'verifypin' %}" style="text-decoration: none; color: #842029">
+                    Failure to upload portrait before game start will remove you from the game
+                </a>
             </div>
             {% endif %}
         </div>
