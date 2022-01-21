@@ -17,6 +17,8 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -27,7 +29,7 @@ SECRET_KEY = 'lnx+r7!6ytl*e+gz^l%8ecxkzqu+$4t&i5r+qsp0orzsm-q)xe'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '172.24.77.32',
+    '192.168.1.195',
     '127.0.0.1'
 ]
 
@@ -128,3 +130,7 @@ STATIC_URL = '/static/' # the path in url
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
+
+
+MEDIA_ROOT =  STATICFILES_DIRS[0] + "/portraits"
+MEDIA_URL = 'media/'

@@ -1,18 +1,23 @@
 
 import random
-
+import os
+import sys
+import face_recognition
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
+from PIL import Image, ExifTags
 from django.shortcuts import redirect
 from .forms import NewUserForm
 from .models import User
 from start_page.views import home
+from django.conf import settings
 from twilio.rest import Client
 
 
+MAX_TEXTS_PER_ACCOUNT = 6
+
 def validate_signup(data):
-    print(data);
     if not len(data['first']) > 0: 
         return "Please enter a first name"
     if not len(data['last']) > 0: 
@@ -21,6 +26,21 @@ def validate_signup(data):
         return "Please enter a valid phone number"
     if len(data['password']) < 6: 
         return "Password must be atleast 5 characters long"
+
+def send_text(to,message):
+    obj = User.objects.get(phone_num=to)
+    if obj.pins_sent < MAX_TEXTS_PER_ACCOUNT:
+        obj.pins_sent = obj.pins_sent + 1
+        obj.save()
+        account_sid = 'AC4253ac2fc098bda1942fe5a909b8588e'
+        auth_token = '617e14e9a649e8d7ca1ed0b8058ee893'
+        client = Client(account_sid, auth_token)
+        message = client.messages.create(
+            messaging_service_sid='MGf469f3b069d1008e337e65ed3fe9a062',
+            body=(message),   
+            to='+1' + str(to)
+        )
+    
     
 def generate_pin(length):
     pin = ""
@@ -28,12 +48,11 @@ def generate_pin(length):
         pin = pin + str(random.randint(0, 9))
     return pin
 
-
 def verify_pin(request):
-    context = {}
-    context['mode'] = "verifying"
     if not request.session.has_key('user_id'):
         return redirect('home')
+    context = {}
+    context['mode'] = "verifying"
     obj = User.objects.get(user_id=request.session['user_id'])
     if obj.phone_verified:
         return redirect('home')
@@ -43,7 +62,9 @@ def verify_pin(request):
             obj.save()
             if request.session.has_key("not_verified"):
                 del request.session["not_verified"]
-            return redirect('home')
+            return redirect('uploadimage')
+        else: 
+            context['error'] = "Incorrect pin, new pin being sent"
     account_sid = 'AC4253ac2fc098bda1942fe5a909b8588e'
     auth_token = '617e14e9a649e8d7ca1ed0b8058ee893'
     client = Client(account_sid, auth_token)
@@ -55,9 +76,9 @@ def verify_pin(request):
     return render(request, 'confirm_phone.html', context)
 
 def signup(request):
-    context = {};
     if request.session.has_key('user_id'):
         return redirect(home);
+    context = {};
     if request.method == 'POST':
         context['error'] = validate_signup(request.POST)
         obj = None;
@@ -82,9 +103,9 @@ def signup(request):
     return render(request, 'signup.html', context)
 
 def login(request):
-    context = {}
     if request.session.has_key('user_id'):
         return redirect(home)
+    context = {}
     if request.method == 'POST':
         try:
             obj = User.objects.get(phone_num=request.POST["phone"])
@@ -109,3 +130,64 @@ def logout(request):
         del request.session['image_not_uploaded']
     return redirect('home')
 
+def fix_image(image,filepath):
+    image = Image.open(image)
+    try:
+        
+        for orientation in ExifTags.TAGS.keys():
+            if ExifTags.TAGS[orientation]=='Orientation':
+                break
+        exif = image._getexif()
+
+        if exif[orientation] == 3:
+            image=image.rotate(180, expand=True)
+        elif exif[orientation] == 6:
+            image=image.rotate(270, expand=True)
+        elif exif[orientation] == 8:
+            image=image.rotate(90, expand=True)
+
+    except (AttributeError, KeyError, IndexError):
+        # cases: image don't have getexif
+        pass
+    image = image.convert('RGB')
+    image.save(filepath,format="jpeg",quality=20)
+    print(filepath)
+    image.close()
+    
+
+def upload_image(request):
+    if not request.session.has_key('user_id'):
+        return redirect(home)
+    if not request.session.has_key('image_not_uploaded'):
+        return redirect(home)
+    context = {}
+    context['mode'] = "verifying"
+    if request.method == 'POST':
+        obj = User.objects.get(user_id=request.session['user_id'])
+        try: 
+            print("\n\n" + str(request.FILES.get('img')) + "\n\n")
+            fix_image(request.FILES.get('img'),settings.MEDIA_ROOT + "/" + str(obj.phone_num) + ".jpeg")
+            face_recog = face_recognition.load_image_file(settings.MEDIA_ROOT + "/" + str(obj.phone_num) + ".jpeg")
+            face_locations = face_recognition.face_locations(face_recog,1)
+            #face_locations = {"test","test2"}
+        except Exception as e:
+            print(e.args)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(exc_type, fname, exc_tb.tb_lineno)
+            context['error'] = "Something went wrong. Please try again"
+            return render(request, 'upload_image.html', context)
+        if len(face_locations) > 1:
+            context['error'] = "There are too many faces in this image. Please use images of you alone."
+            context['image'] = str(obj.phone_num)
+            return render(request, 'upload_image.html', context)
+        elif len(face_locations) == 0: 
+            context['error'] = "No faces detected. Try another image, low lighting images can effect results"
+            context['image'] = str(obj.phone_num)
+            return render(request, 'upload_image.html', context)
+        obj.image_uploaded = True
+        obj.save()
+        if request.session.has_key('image_not_uploaded'):
+            del request.session['image_not_uploaded']
+        return redirect('home')
+    return render(request, 'upload_image.html', context)
