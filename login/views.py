@@ -1,6 +1,7 @@
 
 import random
 import os
+from time import sleep
 import sys
 import face_recognition
 from django.shortcuts import render
@@ -15,7 +16,7 @@ from django.conf import settings
 from twilio.rest import Client
 
 
-MAX_TEXTS_PER_ACCOUNT = 6
+MAX_TEXTS_PER_ACCOUNT = 100
 
 def validate_signup(data):
     if not len(data['first']) > 0: 
@@ -30,8 +31,6 @@ def validate_signup(data):
 def send_text(to,message):
     obj = User.objects.get(phone_num=to)
     if obj.pins_sent < MAX_TEXTS_PER_ACCOUNT:
-        obj.pins_sent = obj.pins_sent + 1
-        obj.save()
         account_sid = 'AC4253ac2fc098bda1942fe5a909b8588e'
         auth_token = '617e14e9a649e8d7ca1ed0b8058ee893'
         client = Client(account_sid, auth_token)
@@ -40,6 +39,8 @@ def send_text(to,message):
             body=(message),   
             to='+1' + str(to)
         )
+    obj.pins_sent = obj.pins_sent + 1
+    obj.save()
     
     
 def generate_pin(length):
@@ -65,23 +66,20 @@ def verify_pin(request):
             return redirect('uploadimage')
         else: 
             context['error'] = "Incorrect pin, new pin being sent"
-    account_sid = 'AC4253ac2fc098bda1942fe5a909b8588e'
-    auth_token = '617e14e9a649e8d7ca1ed0b8058ee893'
-    client = Client(account_sid, auth_token)
-    message = client.messages.create(
-        messaging_service_sid='MGf469f3b069d1008e337e65ed3fe9a062',
-        body=('Your pin for RUF Assassins is: ' + str(obj.verify_pin)),   
-        to='+1' + str(obj.phone_num)
-    )
+    try: 
+        send_text(obj.phone_num, 'Your pin for RUF Assassins is: ' + str(obj.verify_pin))
+    except:
+        context['error'] = "active"
+        context['reload'] = "active"
     return render(request, 'confirm_phone.html', context)
 
 def signup(request):
     if request.session.has_key('user_id'):
-        return redirect(home);
-    context = {};
+        return redirect(home)
+    context = {}
     if request.method == 'POST':
         context['error'] = validate_signup(request.POST)
-        obj = None;
+        obj = None
         try:
             obj = User.objects.get(phone_num=request.POST["phone"])
             context['error'] = "There is already an account associated with this phone number"
@@ -92,8 +90,8 @@ def signup(request):
                 last_name = request.POST["last"], 
                 user_pass = request.POST["password"],
                 verify_pin = generate_pin(4)
-            );
-            obj.save();
+            )
+            obj.save()
         if not context['error']:
             request.session['user_id'] = obj.user_id
             request.session['not_verified'] = True
@@ -163,6 +161,7 @@ def upload_image(request):
     context = {}
     context['mode'] = "verifying"
     if request.method == 'POST':
+        sleep(5)
         obj = User.objects.get(user_id=request.session['user_id'])
         try: 
             print("\n\n" + str(request.FILES.get('img')) + "\n\n")
@@ -178,11 +177,11 @@ def upload_image(request):
             context['error'] = "Something went wrong. Please try again"
             return render(request, 'upload_image.html', context)
         if len(face_locations) > 1:
-            context['error'] = "There are too many faces in this image. Please use images of you alone."
+            context['error'] = "There are too many people in this image. Please use images of you alone."
             context['image'] = str(obj.phone_num)
             return render(request, 'upload_image.html', context)
         elif len(face_locations) == 0: 
-            context['error'] = "No faces detected. Try another image, low lighting images can effect results"
+            context['error'] = "No people detected. Try another image, low lighting images can effect results"
             context['image'] = str(obj.phone_num)
             return render(request, 'upload_image.html', context)
         obj.image_uploaded = True

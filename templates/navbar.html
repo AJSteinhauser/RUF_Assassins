@@ -1,7 +1,4 @@
 {% load static %}
-<!doctype html>
-<html lang="en">
-<body>
     <div class="container">
         <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
             <a href="/" class="d-flex align-items-center col-md-3 mb-2 mb-md-0 text-dark text-decoration-none">
@@ -13,7 +10,7 @@
                 <li><a href="{% url 'rules' %}" class="nav-link px-2 link-dark">Rules</a></li>
                 <li><a href="#" class="nav-link px-2 link-primary">Live Stats</a></li>
                 {% if request.session.user_id %}
-                    <li><a href="#" class="nav-link px-2 link-danger">Target</a></li>
+                    <li><a href="{% url 'target' %}" class="nav-link px-2 link-danger">Target</a></li>
                 {% endif %}
             </ul>
 
@@ -42,19 +39,17 @@
             {% if request.session.not_verified %}
             <div class="alert alert-danger" role="alert">
                 <a href="{% url 'verifypin' %}" style="text-decoration: underline; color: #842029">
-                    Failure to verify pin before game start will remove you from the game. Click here to verify your phone
+                    Failure to verify pin before game start will remove you from the game. Click here to verify your phone.
                 </a>
             </div>
             {% endif %}
             {% if request.session.image_not_uploaded %}
             <div class="alert alert-danger" role="alert">
                 <a href="{% url 'uploadimage' %}" style="text-decoration: underline; color: #842029">
-                    Failure to upload portrait before game start will remove you from the game
+                    Failure to upload portrait before game start will remove you from the game. Click here to upload a portrait. 
                 </a>
             </div>
             {% endif %}
         </div>
         {% endif %}
     </div>
-</body>
-</html>

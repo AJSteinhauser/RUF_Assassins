@@ -19,6 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from start_page.views import rules, home
 from login.views import signup, login, logout, verify_pin, upload_image
+from target.views import target
 
 urlpatterns = [
     path('home/', home, name="home"),
@@ -28,5 +29,6 @@ urlpatterns = [
     path('logout/', logout, name="logout"),
     path('verify/', verify_pin, name="verifypin"),
     path('profileimage/', upload_image, name="uploadimage"),
+    path('target/', target, name="target"),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

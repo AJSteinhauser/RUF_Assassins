@@ -2,6 +2,9 @@
 <!doctype html>
 <html lang="en">
     <head>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+        <meta http-equiv="Pragma" content="no-cache"/>
+        <meta http-equiv="Expires" content="0"/>
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,29 +25,41 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="d-flex justify-content-center">
-                <div class="shadow-lg p-3 mb-5 bg-white rounded jumbotron justify-center" style="width: 80%; max-width: 500px">
+            <div class="d-flex justify-content-center" >
+                <div class="shadow-lg p-3 mb-5 bg-white rounded jumbotron justify-center" style="width: 80%; max-width: 500px" id="maincontent">
                     <div class="d-flex justify-content-center">
                         <img src="{% static '/assets/black_topbar.png' %}" height="100" width="200">
                     </div>
-                    <div class="shadow-lg p-3 mb-5 bg-white rounded jumbotron justify-center" style="margin-top: 10px; margin-left: 15%; width: 70%; max-width: 500px">
-                        {% if image %}
-                            <img src="{% get_static_prefix %}/portraits/{{image}}.jpeg" style="margin-left: 20%; width: 60%; ">
-                        {% else %}  
-                            <img src="{% static '/assets/head_shot.png' %}" id="input-preview" style="margin-left: 20%; width: 60%; ">
+                    <div class="d-flex justify-content-center">
+                        {% if error %}
+                        <style>
+                            #maincontent{
+                                filter: blur(1.5rem)
+                            }
+                        </style>
                         {% endif %}
+                        <section class="jumbotron text-center">
+                            {% if not first_name %}
+                            <h1 class="jumbotron-heading">Your Target:</h1>
+                            <img src="{% static '/assets/head_shot.png' %}" width="80%" style="border-radius: 10%; box-shadow: 10px 10px 5px rgba(0,0,0,.1);">
+                            <p class="lead" style="margin-top: 10px">This is just temporary image for the blur</p>
+                            <p class="text-muted">I'm not your target.... Just check back in when round 1 is active</p>
+                            <p class="text-muted">If you can read this that means you are either using a potato browser or understand CSS... leave me alone bro</p>
+                            <button type="submit" class="btn btn-danger btn-lg btn-block">Submit Kill Report</button>
+                            {% else %}
+                                <h1 class="jumbotron-heading">Your Target:</h1>
+                                <img src="{% get_static_prefix %}/portraits/{{portrait}}.jpeg" width="80%" style="border-radius: 15%; box-shadow: 10px 10px 5px rgba(0,0,0,.1);">
+                                <p class="lead" style="margin-top: 10px">{{first_name}} {{last_name}}</p>
+                                <p class="text-muted">Eliminate {{first_name}} and submit kill report to receive your next target.</p>
+                                {% if first_kill %}
+                                    <p class="text-muted">Failure eliminate {{first_name}} before the end of the round will result in you being eliminated.</p>
+                                {% endif %}
+                                <form action="{% url 'signup' %}">
+                                    <button type="submit" class="btn btn-danger btn-lg btn-block">Submit Kill Report</button>
+                                </form>
+                            {% endif %}
+                        </section>
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="lead text-muted">Upload Self Portrait</p>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        <small style="margin-bottom: 15px;" id="Subtext" class="form-text text-muted">Photo must be of yourself and be clearly identifiable</small>
-                    </div>
-                    <form method="POST" enctype="multipart/form-data"> {% csrf_token %}
-                        <input class="form-control" type="file"  id="img" name="img" accept="image/*">
-                        <button type="submit" onclick="showSpinner()" style="margin-top: 10px; float: right;" id="submit_image" class="btn btn-primary">Submit </button>
-                    </form> 
-                    <script src="{% static '/js/upload_image.js' %}"></script>
                 </div>   
             </div>         
         </main>

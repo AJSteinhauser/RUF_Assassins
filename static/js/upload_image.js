@@ -7,5 +7,6 @@ function showSpinner(){
         var spinner = document.createElement('span');
         spinner.className = 'spinner-border spinner-border-sm'
         button.appendChild(spinner);
+        document.getElementById("overlay").style.display = "block";
     }
 }
