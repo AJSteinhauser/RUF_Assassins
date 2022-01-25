@@ -25,11 +25,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'lnx+r7!6ytl*e+gz^l%8ecxkzqu+$4t&i5r+qsp0orzsm-q)xe'
 
+GOOGLE_MAPS_API_KEY = "AIzaSyBrmt4hCSA2u5xGSfLrpWSO-pVKNfswABM"
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '169.254.176.188',
+    '172.23.184.64',
     '127.0.0.1'
 ]
 
@@ -44,7 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'login.apps.LoginConfig',
-    "phonenumber_field"
+    "phonenumber_field",
 ]
 
 MIDDLEWARE = [

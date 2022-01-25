@@ -20,4 +20,7 @@ class User(models.Model):
         managed = True
         db_table = 'Users'
         
+
+    def __str__(self):
+        return self.first_name + " " + self.last_name + " (" + str(self.user_id) + ")"
     

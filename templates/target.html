@@ -52,9 +52,9 @@
                                 <p class="lead" style="margin-top: 10px">{{first_name}} {{last_name}}</p>
                                 <p class="text-muted">Eliminate {{first_name}} and submit kill report to receive your next target.</p>
                                 {% if first_kill %}
-                                    <p class="text-muted">Failure eliminate {{first_name}} before the end of the round will result in you being eliminated.</p>
+                                    <p class="text-muted">Failure to eliminate {{first_name}} before the end of the round will result in you being eliminated.</p>
                                 {% endif %}
-                                <form action="{% url 'signup' %}">
+                                <form action="{% url 'killreport' %}">
                                     <button type="submit" class="btn btn-danger btn-lg btn-block">Submit Kill Report</button>
                                 </form>
                             {% endif %}
