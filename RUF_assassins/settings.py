@@ -31,7 +31,7 @@ GOOGLE_MAPS_API_KEY = "AIzaSyBrmt4hCSA2u5xGSfLrpWSO-pVKNfswABM"
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '172.23.184.64',
+    '172.23.95.73',
     '127.0.0.1'
 ]
 

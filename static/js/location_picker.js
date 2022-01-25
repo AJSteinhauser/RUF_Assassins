@@ -7,12 +7,25 @@
 //Set up some of our variables.
 var map; //Will contain map object.
 var marker = false; ////Has the user plotted their location marker? 
+var pos,locationButton, spinner;
 
-
+function success(position){
+    pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+    };
+    locationButton.textContent = "Pan To Current Location";
+    locationButton.disabled = false;
+    spinner.remove();
+}
         
 //Function called to initialize / create the map.
 //This is called when the page has loaded.
 function initMap() {
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(success);
+    }
 
     //The center location of our map.
     var centerOfMap = new google.maps.LatLng(33.95156072962477, -83.37603784190308);
@@ -28,45 +41,36 @@ function initMap() {
     //Create the map object.
     map = new google.maps.Map(document.getElementById('map'), options);
 
-    const locationButton = document.createElement("button");
+    locationButton = document.createElement("button");
     locationButton.classList.add("btn")
     locationButton.classList.add("btn-primary")
     locationButton.style.cssText += "margin-top: 5px"
 
-    locationButton.textContent = "Pan to Current Location";
-    //locationButton.classList.add("custom-map-control-button");
+    locationButton.textContent = "Loading Current Location ";
+    locationButton.disabled = true;
     map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+    spinner = document.createElement('span');
+    spinner.className = 'spinner-border spinner-border-sm'
+    locationButton.appendChild(spinner);
+    //locationButton.classList.add("custom-map-control-button");
     locationButton.addEventListener("click", () => {
         // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                const pos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                };
-                if(marker === false){
-                    //Create the marker.
-                    marker = new google.maps.Marker({
-                        position: pos,
-                        map: map,
-                        draggable: true //make it draggable
-                    });
-                    //Listen for drag events!
-                    google.maps.event.addListener(marker, 'dragend', function(event){
-                        markerLocation();
-                    });
-                } else{
-                    //Marker has already been added, so just change its location.
-                    marker.setPosition(pos);
-                }
-                map.panTo(pos);
-                },
-                () => {
-                handleLocationError(true, infoWindow, map.getCenter());
-                }
-            );
+        if(marker === false){
+            //Create the marker.
+            marker = new google.maps.Marker({
+                position: pos,
+                map: map,
+                draggable: true //make it draggable
+            });
+            //Listen for drag events!
+            google.maps.event.addListener(marker, 'dragend', function(event){
+                markerLocation();
+            });
+        } else{
+            //Marker has already been added, so just change its location.
+            marker.setPosition(pos);
         }
+        map.panTo(pos);
     });
 
     //Listen for any clicks on the map.

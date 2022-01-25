@@ -27,6 +27,8 @@ def target(request):
 
 
 def kill_report(request):
+    if not request.session.has_key('user_id'):
+        return redirect('home')
     context = {}
     context['map'] = map
     return render(request, 'kill_report.html',context)
