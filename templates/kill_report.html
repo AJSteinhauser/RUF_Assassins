@@ -69,15 +69,29 @@
                         <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBrmt4hCSA2u5xGSfLrpWSO-pVKNfswABM&callback=initMap&v=weekly&channel=2"></script>
                         <h4 class="border-top">Time of Death</h4>  
                         <small class="text-muted">Exactly when your victem died</small>
-                        <input type="datetime-local" id="death_time" name="death_time" class="form-control">
+                        <input type="datetime-local" id="death_time" name="death_time_value" class="form-control">
                         <h4 class="border-top" style="margin-top: 10px">Kill Description</h4>
                         <small class="text-muted">
                             Write a description of the kill. The best story will get an award!
                         </small>
                         <textarea class="form-control" id="story" rows="5"></textarea>
                         <form method="POST"> {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-lg btn-block" style="margin-top: 10px; width: 80%">Submit Report</button>
+                            <input id="Description" hidden="true" type="hidden" name="description">
+                            <input hidden="true" id="death_time_send" name="death_time">
+                            <input id="lat_send" hidden="true" name="lat">
+                            <input id="long_send" hidden="true" name="long">
+                            <button type="submit" onclick="update()" class="btn btn-danger btn-lg btn-block" style="margin-top: 10px; width: 80%">Submit Report</button>
                         </form>
+                        <script>
+                            const desc_show = document.getElementById("story")
+                            const desc_send = document.getElementById("Description");
+                            const death_show = document.getElementById("death_time");
+                            const death_send = document.getElementById("death_time_send");
+                            function update() {
+                                desc_send.value = desc_show.value;
+                                death_send.value = death_show.value;
+                            }
+                        </script>
                         
                     </section>
                 </div>   

@@ -15,7 +15,8 @@ class User(models.Model):
     verify_pin = models.CharField(max_length=4, blank=True, null=True);
     pins_sent = models.PositiveIntegerField(default=0);
     current_target = models.PositiveIntegerField(blank=True, null=True);
-    kills_this_round = models.PositiveIntegerField(default=0, null=True)
+    kills_this_round = models.PositiveIntegerField(default=0);
+    total_kills = models.PositiveIntegerField(default=0);
     class Meta:
         managed = True
         db_table = 'Users'

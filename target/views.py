@@ -31,4 +31,7 @@ def kill_report(request):
         return redirect('home')
     context = {}
     context['map'] = map
+    if request.method == 'POST':
+        print("\n\n\n::::")
+        print(request.POST)
     return render(request, 'kill_report.html',context)
