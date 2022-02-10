@@ -16,12 +16,11 @@ class User(models.Model):
     pins_sent = models.PositiveIntegerField(default=0);
     current_target = models.PositiveIntegerField(blank=True, null=True);
     kills_this_round = models.PositiveIntegerField(default=0);
+    alive = models.BooleanField(default=True);
     total_kills = models.PositiveIntegerField(default=0);
     class Meta:
         managed = True
         db_table = 'Users'
-        
-
     def __str__(self):
         return self.first_name + " " + self.last_name + " (" + str(self.user_id) + ")"
     

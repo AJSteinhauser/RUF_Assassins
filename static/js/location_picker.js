@@ -28,16 +28,12 @@ function initMap() {
     }
     var centerOfMap = new google.maps.LatLng(33.95156072962477, -83.37603784190308);
     
-    const now = new Date();
-    console.log("now")
-    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-    document.getElementById('death_time').value = now.toISOString().slice(0, -1);
 
     var options = {
       center: centerOfMap,
       zoom: 16,
       disableDefaultUI: true,
-      zoomControl: true
+      zoomControl: true,
     };
 
     map = new google.maps.Map(document.getElementById('map'), options);
@@ -66,6 +62,7 @@ function initMap() {
         } else{
             marker.setPosition(pos);
         }
+        markerLocation();
         map.panTo(pos);
     });
 

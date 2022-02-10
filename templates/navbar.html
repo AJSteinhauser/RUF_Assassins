@@ -8,7 +8,7 @@
             <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
                 <li><a href="{% url 'home' %}" class="nav-link px-2 link-dark">Home</a></li>
                 <li><a href="{% url 'rules' %}" class="nav-link px-2 link-dark">Rules</a></li>
-                <li><a href="#" class="nav-link px-2 link-primary">Live Stats</a></li>
+                <li><a href="{% url 'stats' %}" class="nav-link px-2 link-primary">Live Stats</a></li>
                 {% if request.session.user_id %}
                     <li><a href="{% url 'target' %}" class="nav-link px-2 link-danger">Target</a></li>
                 {% endif %}
