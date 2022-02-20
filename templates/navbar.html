@@ -36,6 +36,20 @@
         </header>
         {% if request.session.user_id and not mode == "verifying" %}
         <div class="d-flex flex-column justify-content-center" style="max-width: 80%; margin-left: 10%;">
+            {% if request.wait_for_verify %}
+                <div class="alert alert-info" role="alert">
+                    Waiting for 
+                </div>
+            {% endif %}
+            {% if request.verify_kill %}
+            <div class="alert alert-info" role="alert">
+                <div class="alert alert-info" role="alert">
+                    <div class="alert alert-info" role="alert">
+
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             {% if request.session.not_verified %}
             <div class="alert alert-danger" role="alert">
                 <a href="{% url 'verifypin' %}" style="text-decoration: underline; color: #842029">

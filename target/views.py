@@ -5,6 +5,7 @@ from re import M
 import pytz
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.conf import settings
 from .models import Kill
 
 
@@ -18,14 +19,16 @@ def target(request):
         redirect('home')
     context = {}
     obj = User.objects.get(user_id=request.session['user_id'])
-    if obj.current_target: 
-        target = User.objects.get(user_id=obj.current_target)
-        context['first_name'] = target.first_name 
-        context['last_name'] = target.last_name 
-        context['portrait'] = target.phone_num
-        if obj.kills_this_round == 0:
-            context['first_kill'] = True
-
+    if obj.current_target:
+        if not obj.kill_verifying:
+            target = User.objects.get(user_id=obj.current_target)
+            context['first_name'] = target.first_name 
+            context['last_name'] = target.last_name 
+            context['portrait'] = target.phone_num
+            if obj.kills_this_round == 0:
+                context['first_kill'] = True
+        else: 
+            context['error'] = 'Waiting on your target to verify the kill'
     else: 
         context['error'] = 'The game has not begun yet. Check back when round 1 starts'
     return render(request, 'target.html', context) 
@@ -96,23 +99,37 @@ def stats(request):
     context['death_points'] = []
     kill_stream = []
     for obj in kill_list:
-        location = {
-            'lat' : obj.lat,
-            'long' : obj.long,
-        } 
-        context['death_points'].append(location)
-        if i < 5:
-            then = obj.report_time_submitted.replace(tzinfo=None)
-            now = datetime.now()
-            duration = (now - then).total_seconds()
-            killer_info = {
-                'killer' : obj.killer_name,
-                'victim' : obj.victim_name,
-                'hours' : int(divmod(duration, 3600)[0]),
-                'mins' : int(divmod(duration, 60)[0])
-            }
-            kill_stream.append(killer_info)
-            i = i + 1
+        if obj.confirmed:
+            location = {
+                'lat' : obj.lat,
+                'long' : obj.long,
+            } 
+            context['death_points'].append(location)
+            if i == 0: 
+                context['recent_kill_portrait'] = User.objects.get(user_id=obj.victim_id).phone_num
+                context['recent_kill_name'] = obj.victim_name
+                death_time = obj.report_time_submitted.replace(tzinfo=None)
+                then = settings.ROUND_1_START
+                duration = (death_time - then).total_seconds()
+                recent_death_time = {
+                    'days' : int(divmod(duration, 3600 * 24)[0]),
+                    'hours' : int(divmod(duration, 3600)[0]),
+                    'mins' : int(divmod(duration, 60)[0])
+                }
+                context['recent_death_time'] = recent_death_time
+            if i < 6:
+                then = obj.report_time_submitted.replace(tzinfo=None)
+                now = datetime.now()
+                duration = (now - then).total_seconds()
+                killer_info = {
+                    'killer' : obj.killer_name,
+                    'victim' : obj.victim_name,
+                    'days' : int(divmod(duration, 3600 * 24)[0]),
+                    'hours' : int(divmod(duration, 3600)[0]),
+                    'mins' : int(divmod(duration, 60)[0])
+                }
+                kill_stream.append(killer_info)
+                i = i + 1
     context.update({'leaderboard':leaderboard})    
     context.update({'kill_stream':kill_stream})    
     return render(request, 'live_stats.html',context)

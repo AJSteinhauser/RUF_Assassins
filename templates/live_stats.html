@@ -105,6 +105,8 @@
                                     <p style="margin-top: 5px; ">{{kill.killer}} 🥄 {{kill.victim}}</p>
                                     {% if kill.hours == 0 %}
                                         <p class="text-muted" >{{kill.mins}} mins ago</p>
+                                    {% elif kill.hours > 24 %}
+                                        <p class="text-muted" >{{kill.days}} days ago</p>
                                     {% else %}
                                         <p class="text-muted" >{{kill.hours}} hours ago</p>
                                     {% endif %}
@@ -115,7 +117,18 @@
                     </div>
                     <div class="col-sm-6 col-lg-4 mb-4" style="position: absolute; left: 0%; top: 362px;">
                         <div class="card">
-                        <svg class="bd-placeholder-img card-img" width="100%" height="260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Card image" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Card image</text></svg>
+                        <img src="{% get_static_prefix %}/portraits/{{recent_kill_portrait}}.jpeg" width="100%" style="-webkit-filter: grayscale(100%); filter: grayscale(100%);">
+                        <div style=" position: absolute; top: 10%; left: 50%; transform: translate(-50%, -90%);">DECEASED</div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ recent_kill_name }} is the latest death</h5>
+                            {% if recent_death_time.hours == 0 %}
+                                <p class="text-muted" > They only survived {{recent_death_time.mins}} minutes.</p>
+                            {% elif recent_death_time.hours > 24 %}
+                                <p class="text-muted" >They only survived {{recent_death_time.days}} days.</p>
+                            {% else %}
+                                <p class="text-muted" > They only survived {{recent_death_time.hours}} hours.</p>
+                            {% endif %}
+                        </div>
                         </div>
                     </div>
                     <div class="col-sm-6 col-lg-4 mb-4" style="position: absolute; left: 66.66666666666666%; top: 378px;">

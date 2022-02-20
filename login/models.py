@@ -17,6 +17,8 @@ class User(models.Model):
     current_target = models.PositiveIntegerField(blank=True, null=True);
     kills_this_round = models.PositiveIntegerField(default=0);
     alive = models.BooleanField(default=True);
+    kill_verifying = models.BooleanField(default=False);
+    death_pending = models.BooleanField(default=False);
     total_kills = models.PositiveIntegerField(default=0);
     class Meta:
         managed = True

@@ -11,12 +11,17 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+from datetime import datetime
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
+#ROUND_1_START = datetime(year=2022, month=3, day=15, hour=11, minute=59, second=59)
+ROUND_1_START = datetime(year=2022, month=2, day=7, hour=11, minute=59, second=59)
+#ROUND_1_END = ROUND_1_START + ROUND_1_START.timedelta(days=7)
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,7 +37,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '172.23.125.31',
-    '127.0.0.1'
+    '127.0.0.1',
+    "192.168.1.209"
 ]
 
 
