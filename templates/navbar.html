@@ -36,18 +36,16 @@
         </header>
         {% if request.session.user_id and not mode == "verifying" %}
         <div class="d-flex flex-column justify-content-center" style="max-width: 80%; margin-left: 10%;">
-            {% if request.wait_for_verify %}
-                <div class="alert alert-info" role="alert">
-                    Waiting for 
+            {% if request.session.wait_for_verify %}
+                <div class="alert alert-info text-center" role="alert">
+                    Waiting on your target to verify the kill
                 </div>
             {% endif %}
-            {% if request.verify_kill %}
-            <div class="alert alert-info" role="alert">
-                <div class="alert alert-info" role="alert">
-                    <div class="alert alert-info" role="alert">
-
-                    </div>
-                </div>
+            {% if request.session.verify_kill %}
+            <div class="alert alert-info text-center" role="alert">
+                <a href="{% url 'confirmkill' %}" style="text-decoration: underline; color: rgb(78,125,130)">
+                    A kill report has been submitted about you. Click here to confirm or deny the report.
+                </a>
             </div>
             {% endif %}
             {% if request.session.not_verified %}

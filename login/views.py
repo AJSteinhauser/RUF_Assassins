@@ -13,10 +13,10 @@ from .forms import NewUserForm
 from .models import User
 from start_page.views import home
 from django.conf import settings
-from twilio.rest import Client
+from target.views import add_kill_status
+from .helper import send_text
 
 
-MAX_TEXTS_PER_ACCOUNT = 100
 
 def validate_signup(data):
     if not len(data['first']) > 0: 
@@ -28,19 +28,7 @@ def validate_signup(data):
     if len(data['password']) < 6: 
         return "Password must be atleast 5 characters long"
 
-def send_text(to,message):
-    obj = User.objects.get(phone_num=to)
-    if obj.pins_sent < MAX_TEXTS_PER_ACCOUNT:
-        account_sid = 'AC4253ac2fc098bda1942fe5a909b8588e'
-        auth_token = '617e14e9a649e8d7ca1ed0b8058ee893'
-        client = Client(account_sid, auth_token)
-        message = client.messages.create(
-            messaging_service_sid='MGf469f3b069d1008e337e65ed3fe9a062',
-            body=(message),   
-            to='+1' + str(to)
-        )
-    obj.pins_sent = obj.pins_sent + 1
-    obj.save()
+
     
     
 def generate_pin(length):
@@ -50,6 +38,7 @@ def generate_pin(length):
     return pin
 
 def verify_pin(request):
+    add_kill_status(request)
     if not request.session.has_key('user_id'):
         return redirect('home')
     context = {}
@@ -67,13 +56,14 @@ def verify_pin(request):
         else: 
             context['error'] = "Incorrect pin, new pin being sent"
     try: 
-        send_text(obj.phone_num, 'Your pin for RUF Assassins is: ' + str(obj.verify_pin))
+        send_text(obj.phone_num, 'Your pin is: ' + str(obj.verify_pin))
     except:
         context['error'] = "active"
         context['reload'] = "active"
     return render(request, 'confirm_phone.html', context)
 
 def signup(request):
+    add_kill_status(request)
     if request.session.has_key('user_id'):
         return redirect(home)
     context = {}
@@ -101,6 +91,7 @@ def signup(request):
     return render(request, 'signup.html', context)
 
 def login(request):
+    add_kill_status(request)
     if request.session.has_key('user_id'):
         return redirect(home)
     context = {}
@@ -120,6 +111,7 @@ def login(request):
     return render(request, 'login.html', context)
 
 def logout(request):
+    add_kill_status(request)
     if request.session.has_key('user_id'):
         del request.session['user_id']
     if request.session.has_key('not_verified'):
@@ -129,6 +121,7 @@ def logout(request):
     return redirect('home')
 
 def fix_image(image,filepath):
+    
     image = Image.open(image)
     try:
         
@@ -154,6 +147,7 @@ def fix_image(image,filepath):
     
 
 def upload_image(request):
+    add_kill_status(request)
     if not request.session.has_key('user_id'):
         return redirect(home)
     if not request.session.has_key('image_not_uploaded'):
@@ -161,14 +155,13 @@ def upload_image(request):
     context = {}
     context['mode'] = "verifying"
     if request.method == 'POST':
-        sleep(5)
+        #sleep(5)
         obj = User.objects.get(user_id=request.session['user_id'])
         try: 
             print("\n\n" + str(request.FILES.get('img')) + "\n\n")
             fix_image(request.FILES.get('img'),settings.MEDIA_ROOT + "/" + str(obj.phone_num) + ".jpeg")
             face_recog = face_recognition.load_image_file(settings.MEDIA_ROOT + "/" + str(obj.phone_num) + ".jpeg")
             face_locations = face_recognition.face_locations(face_recog,1)
-            #face_locations = {"test","test2"}
         except Exception as e:
             print(e.args)
             exc_type, exc_obj, exc_tb = sys.exc_info()

@@ -19,9 +19,9 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-#ROUND_1_START = datetime(year=2022, month=3, day=15, hour=11, minute=59, second=59)
-ROUND_1_START = datetime(year=2022, month=2, day=7, hour=11, minute=59, second=59)
-#ROUND_1_END = ROUND_1_START + ROUND_1_START.timedelta(days=7)
+#ROUND_1_START = datetime(year=2022, month=3, day=7, hour=23, minute=59, second=59)
+ROUND_1_START = datetime(year=2022, month=2, day=21, hour=23, minute=59, second=59)
+ROUND_1_END = datetime(year=2022, month=3, day=16, hour=23, minute=59, second=59)
 
 
 # Quick-start development settings - unsuitable for production
