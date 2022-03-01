@@ -20,8 +20,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 #ROUND_1_START = datetime(year=2022, month=3, day=7, hour=23, minute=59, second=59)
-ROUND_1_START = datetime(year=2022, month=2, day=21, hour=23, minute=59, second=59)
-ROUND_1_END = datetime(year=2022, month=3, day=16, hour=23, minute=59, second=59)
+ROUND_1_START = datetime(year=2022, month=3, day=18, hour=23, minute=59, second=59)
+ROUND_1_END = datetime(year=2022, month=3, day=25, hour=23, minute=59, second=59)
 
 
 # Quick-start development settings - unsuitable for production
@@ -35,10 +35,16 @@ GOOGLE_MAPS_API_KEY = "AIzaSyBrmt4hCSA2u5xGSfLrpWSO-pVKNfswABM"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+HOSTNAME = "RUFAssassins"
+
 ALLOWED_HOSTS = [
     '172.23.125.31',
     '127.0.0.1',
-    "192.168.1.209"
+    "192.168.1.209",
+    "170-187-200-125.ip.linodeusercontent.com",
+    "www.ajsteinhauser.org",
+    "170.187.200.125",
+    "ajsteinhauser.org"
 ]
 
 
@@ -94,7 +100,7 @@ WSGI_APPLICATION = 'RUF_assassins.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME':  'RUF assassins',
+        'NAME':  '/var/www/db/db.sqlite3'
     }
 }
 
@@ -135,12 +141,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
+
 STATIC_URL = '/static/' # the path in url
+STATIC_ROOT = '/var/www/assets'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
 
-MEDIA_ROOT =  STATICFILES_DIRS[0] + "/portraits"
+MEDIA_ROOT =  STATIC_ROOT + "/portraits"
 MEDIA_URL = 'media/'

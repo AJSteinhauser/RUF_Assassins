@@ -158,7 +158,7 @@ def upload_image(request):
         #sleep(5)
         obj = User.objects.get(user_id=request.session['user_id'])
         try: 
-            print("\n\n" + str(request.FILES.get('img')) + "\n\n")
+
             fix_image(request.FILES.get('img'),settings.MEDIA_ROOT + "/" + str(obj.phone_num) + ".jpeg")
             face_recog = face_recognition.load_image_file(settings.MEDIA_ROOT + "/" + str(obj.phone_num) + ".jpeg")
             face_locations = face_recognition.face_locations(face_recog,1)
@@ -166,7 +166,11 @@ def upload_image(request):
             print(e.args)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(exc_type, fname, exc_tb.tb_lineno)
+            #print(exc_type, fname, exc_tb.tb_lineno)
+            sys.stderr.write("Next line\n")
+            sys.stderr.write(str(exc_type))
+            sys.stderr.write(str(fname))
+            sys.stderr.write(str(exc_tb.tb_lineno))
             context['error'] = "Something went wrong. Please try again"
             return render(request, 'upload_image.html', context)
         if len(face_locations) > 1:
