@@ -98,6 +98,7 @@ def kill_report(request):
         userobj.save();
         victimobj.save();
         request.session['wait_for_verify'] = True;
+        send_text(victimobj.phone_num,"A kill report has been submitted about you, please respond ASAP to keep the game moving ajsteinhauser.org")
         return redirect('home');
     return render(request, 'kill_report.html',context)
 

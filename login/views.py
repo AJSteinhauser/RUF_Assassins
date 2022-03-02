@@ -15,6 +15,8 @@ from start_page.views import home
 from django.conf import settings
 from target.views import add_kill_status
 from .helper import send_text
+from datetime import datetime
+
 
 
 
@@ -27,6 +29,8 @@ def validate_signup(data):
         return "Please enter a valid phone number"
     if len(data['password']) < 6: 
         return "Password must be atleast 5 characters long"
+    if data['secret'].lower() != "coppedge":
+        return data['secret'].lower() + " " + "coppedge " + str(data['secret'].lower() != "coppedge")
 
 
     
@@ -64,30 +68,34 @@ def verify_pin(request):
 
 def signup(request):
     add_kill_status(request)
+    context = {}
+    if (settings.ROUND_1_START - datetime.now()).total_seconds() <= 0: 
+        context['error'] = "The game has already started. It's too late to sign up"
+        return render(request, 'signup.html',context)
     if request.session.has_key('user_id'):
         return redirect(home)
-    context = {}
+  
     if request.method == 'POST':
         context['error'] = validate_signup(request.POST)
         obj = None
-        try:
-            obj = User.objects.get(phone_num=request.POST["phone"])
-            context['error'] = "There is already an account associated with this phone number"
-        except: 
-            obj = User(
-                phone_num = request.POST["phone"],
-                first_name = request.POST["first"],
-                last_name = request.POST["last"], 
-                user_pass = request.POST["password"],
-                verify_pin = generate_pin(4)
-            )
-            obj.save()
-        if not context['error']:
-            request.session['user_id'] = obj.user_id
-            request.session['not_verified'] = True
-            request.session['image_not_uploaded'] = True
-
-            return redirect(verify_pin)
+        if not 'error' in context:
+            try:
+                obj = User.objects.get(phone_num=request.POST["phone"])
+                context['error'] = "There is already an account associated with this phone number"
+            except: 
+                obj = User(
+                    phone_num = request.POST["phone"],
+                    first_name = request.POST["first"],
+                    last_name = request.POST["last"], 
+                    user_pass = request.POST["password"],
+                    verify_pin = generate_pin(4)
+                )
+                obj.save()
+            if not 'error' in context:
+                request.session['user_id'] = obj.user_id
+                request.session['not_verified'] = True
+                request.session['image_not_uploaded'] = True
+                return redirect(verify_pin)
     return render(request, 'signup.html', context)
 
 def login(request):

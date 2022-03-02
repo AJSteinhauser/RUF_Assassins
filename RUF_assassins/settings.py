@@ -44,7 +44,7 @@ ALLOWED_HOSTS = [
     "170-187-200-125.ip.linodeusercontent.com",
     "www.ajsteinhauser.org",
     "170.187.200.125",
-    "ajsteinhauser.org"
+    "ajsteinhauser.org",
 ]
 
 

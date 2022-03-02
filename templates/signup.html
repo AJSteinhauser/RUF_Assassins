@@ -19,7 +19,7 @@
             {% include './navbar.html' %}
             <div class="d-flex justify-content-center">
                 {% if error %}
-                <div class="alert alert-danger" style="max-width: 80%; margin-left: 10%;" role="alert">
+                <div class="alert alert-danger" style="width: 80%; margin-left: 10%;" role="alert">
                     {{error}}
                 </div>
                 {% endif %}
@@ -40,6 +40,8 @@
                             <small id="phoneHelp" class="form-text text-muted">This is used to update you on game progress</small><br>
                             <label for="password">Password:</label>
                             <input name="password" required type="password" class="form-control" id="password" placeholder="">
+                            <label for="password">Secret Code:</label>
+                            <input name="secret" required class="form-control" id="secret" placeholder="">
                             <button type="submit" style="margin-top: 10px; display: block; margin-left: auto; margin-right: 0;" class="btn btn-primary">Create Account</button>
                         </form>
                     </form>  
