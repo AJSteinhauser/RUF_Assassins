@@ -4,6 +4,7 @@ import os
 from time import sleep
 import sys
 import face_recognition
+from dstructure.SCLL import SCLL
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
@@ -30,7 +31,7 @@ def validate_signup(data):
     if len(data['password']) < 6: 
         return "Password must be atleast 5 characters long"
     if data['secret'].lower() != "coppedge":
-        return data['secret'].lower() + " " + "coppedge " + str(data['secret'].lower() != "coppedge")
+        return "Invalid secret key"
 
 
     
@@ -72,17 +73,25 @@ def signup(request):
     if (settings.ROUND_1_START - datetime.now()).total_seconds() <= 0: 
         context['error'] = "The game has already started. It's too late to sign up"
         return render(request, 'signup.html',context)
+    if (settings.SIGN_UP_CLOSE - datetime.now()).total_seconds() <= 0: 
+        context['error'] = "Sign ups have closed for this game."
+        return render(request, 'signup.html',context)
     if request.session.has_key('user_id'):
         return redirect(home)
-  
     if request.method == 'POST':
         context['error'] = validate_signup(request.POST)
         obj = None
-        if not 'error' in context:
+        print(2)
+        print(('error' in context))
+        print(context['error'])
+        if not context['error']:
+            print(3)
             try:
+                print(4)
                 obj = User.objects.get(phone_num=request.POST["phone"])
                 context['error'] = "There is already an account associated with this phone number"
-            except: 
+            except:
+                print(5) 
                 obj = User(
                     phone_num = request.POST["phone"],
                     first_name = request.POST["first"],
@@ -91,11 +100,13 @@ def signup(request):
                     verify_pin = generate_pin(4)
                 )
                 obj.save()
-            if not 'error' in context:
+            if not context['error']:
+                print(6)
                 request.session['user_id'] = obj.user_id
                 request.session['not_verified'] = True
                 request.session['image_not_uploaded'] = True
                 return redirect(verify_pin)
+        
     return render(request, 'signup.html', context)
 
 def login(request):
@@ -174,11 +185,6 @@ def upload_image(request):
             print(e.args)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            #print(exc_type, fname, exc_tb.tb_lineno)
-            sys.stderr.write("Next line\n")
-            sys.stderr.write(str(exc_type))
-            sys.stderr.write(str(fname))
-            sys.stderr.write(str(exc_tb.tb_lineno))
             context['error'] = "Something went wrong. Please try again"
             return render(request, 'upload_image.html', context)
         if len(face_locations) > 1:
@@ -195,3 +201,98 @@ def upload_image(request):
             del request.session['image_not_uploaded']
         return redirect('home')
     return render(request, 'upload_image.html', context)
+
+def execute_admin_command(command):
+    if command == "testing":
+        return "test command"
+    elif command == "confirm playing":
+        plr_list = list(User.objects.all())
+        for plr in plr_list:
+            if plr.phone_verified and plr.image_uploaded: 
+                send_text(plr.phone_num,"Reminder: Assassins starts friday night, you are signed up to play")
+    elif command == "delete unverified accounts":
+        plr_list = list(User.objects.all())
+        for plr in plr_list:
+            if not plr.phone_verified or not plr.image_uploaded: 
+                print(plr);
+                send_text(plr.phone_num, "Your accound has been deleted for failing to confirm phone# or uploading image by the end of sign-ups");
+                plr.delete();
+    elif command == "check unverified accounts":
+        plr_list = list(User.objects.all())
+        s = "Unverified accounts:\n"
+        for plr in plr_list:
+            if not plr.phone_verified or not plr.image_uploaded: 
+                print(plr);
+                s = s + str(plr) + "\n"
+        return s;
+    elif command == "verify accounts reminder":
+        plr_list = list(User.objects.all())
+        for plr in plr_list:
+            if not plr.phone_verified: 
+                send_text(plr.phone_num, "Your account phone number must be verifed by" + settings.ROUND_1_START.strftime("%A, %B %-d at %I:%M %p") + "else your account will be deleted ajsteinhauser.org/verify")
+            if not plr.image_uploaded:
+                send_text(plr.phone_num, "You must upload a profile image by" + settings.ROUND_1_START.strftime("%A, %B %-d at %I:%M %p") + "else your account will be deleted. ajsteinhauser.org/profileimage")
+    elif command == "assign targets please dont":
+        plr_list = list(User.objects.all())
+        length = len(plr_list)
+        circle = SCLL()
+        while len(plr_list) > 0:
+            randomplr = plr_list.pop(random.randint(0, len(plr_list)-1))
+            circle.insert(randomplr)
+        circle = circle.root
+        target_list = ""
+        print(length + 1)
+        for i in range(0,length + 1):
+            target_list = target_list + str(circle.data) + "->"
+            circle.data.current_target = circle.next.data.user_id
+            circle.data.save()
+            circle = circle.next
+        print(target_list)
+    elif command == "start game":
+        plr_list = list(User.objects.all())
+        for plr in plr_list:
+            send_text(plr.phone_num, "You can see your targets now. Go to ajsteinhauser.org/target to find out who you have. The game does not start until midnight")
+    elif command[0:8] == "message:":
+        plr_list = list(User.objects.all())
+        for plr in plr_list:
+            send_text(plr.phone_num,command[8:])
+        return "sent" + command[8:]
+    elif command == "check list":
+        plr_list_count = len(list(User.objects.all()))
+        initial_player = None;
+        plrlist = list(User.objects.all())
+        for plr in plrlist:
+            if plr.alive:
+                initial_player = plr
+                break
+        current_player = User.objects.get(user_id=initial_player.current_target)
+        target_list = str(initial_player) + "->\n"
+        count = 1
+        while (current_player != initial_player) or count > plr_list_count:
+            target_list = target_list + str(current_player) + "->\n"
+            current_player = User.objects.get(user_id=current_player.current_target)
+            count = count + 1
+        
+        return (str(plr_list_count) + " == " + str(count) + "\nList:\n" + target_list);
+
+    elif command[0:5] == "find:":
+        phonenumber = command[5:]
+        try:
+            obj = User.objects.get(phone_num=phonenumber)
+            return str(obj)
+        except:
+            return phonenumber + " player not found"
+    else:
+        return "Error: no command executed"
+    return "Command excuted successfully"
+
+def game_admin(request):
+    context = {}
+    if not request.session.has_key('user_id'):
+        return redirect(home)
+    obj = User.objects.get(user_id=request.session['user_id'])
+    if not obj.isAdmin:
+        return redirect('home')
+    if request.method == 'POST':
+        context['error'] = execute_admin_command(request.POST['command'])
+    return render(request, 'admin_page.html', context)

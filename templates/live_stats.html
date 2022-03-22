@@ -106,6 +106,7 @@
                             <div class="card text-center">
                             <div class="card-body">
                                 <h2 class="card-title">Kill Feed</h2>
+                                <a href="{% url 'killfeed' %}" class="nav-link text-primary"><i>Click here to view full kill feed</i></a>
                                 {% for kill in kill_stream %}
                                     <div class="row border-bottom">
                                         <p style="margin-top: 5px; ">{{kill.killer}} 🥄 {{kill.victim}}</p>
@@ -141,6 +142,7 @@
                             <div class="card text-center">
                                 <div class="card-body">
                                     <h2 class="card-title">Leaderboard</h2>
+                                    <a href="{% url 'leaderboard' %}" class="nav-link text-primary"><i>Click here to view full leaderboard</i></a>
                                     <div class="row border-bottom" style="margin-bottom: 10px;">
                                         <div class="col">Placement</div>
                                         <div class="col-6">Name</div>

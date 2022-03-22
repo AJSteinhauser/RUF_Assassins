@@ -21,7 +21,7 @@ def target(request):
         return redirect('home')
     context = {}
     obj = User.objects.get(user_id=request.session['user_id'])
-    if obj.current_target and not ((datetime.now() - settings.ROUND_1_START).total_seconds() <= 0) and obj.alive:
+    if obj.current_target and obj.alive:
         if not obj.death_pending:
             if not obj.kill_verifying:
                 target = User.objects.get(user_id=obj.current_target)
@@ -159,6 +159,52 @@ def confirm_kill_deny(request):
         userobj.save();
         send_text(targetPlayer.phone_num, userobj.first_name + " " + userobj.last_name + " has denied the kill. If this was an error submit another kill report otherwise get in contact with us")
     return redirect('home')
+
+
+def leaderboard(request):
+    add_kill_status(request)
+    context = {}
+    plr_list = list(User.objects.all().order_by('-total_kills'))
+    leaderboard = []
+    i = 0
+    for plr in plr_list:
+        if plr.total_kills > 0:
+            leader_info = {
+                'name' : plr.first_name + " " + plr.last_name,
+                'kills' : plr.total_kills,
+                'placement' : i + 1
+            }
+            if not plr.alive:
+                leader_info['name'] = "<strike>" + leader_info['name'] + "</strike><i> (Deceased)</i>"
+            leaderboard.append(leader_info)
+            i = i + 1
+    context.update({'leaderboard':leaderboard})
+    return render(request, 'leaderboard.html',context)
+
+def kill_feed(request):
+    add_kill_status(request)
+    context = {}
+    kill_list = list(Kill.objects.all().order_by('-report_time_submitted'))
+    kill_stream = []
+    
+    for obj in kill_list:
+        if obj.confirmed:
+            then = obj.report_time_submitted.replace(tzinfo=None)
+            now = datetime.now()
+            duration = (now - then).total_seconds()
+            killer_info = {
+                'killer' : obj.killer_name,
+                'victim' : obj.victim_name,
+                'desc' : obj.killer_name + ": " + obj.description,
+                'days' : int(divmod(duration, 3600 * 24)[0]),
+                'hours' : int(divmod(duration, 3600)[0]),
+                'mins' : int(divmod(duration, 60)[0])
+            }
+            kill_stream.append(killer_info)
+    context.update({'kill_stream':kill_stream})  
+    return render(request, 'kill_feed.html',context)  
+
+
 
 def stats(request):
     add_kill_status(request)

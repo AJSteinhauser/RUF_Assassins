@@ -1,0 +1,52 @@
+
+
+
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+    <link rel="icon" href="{% static '/assets/website_logo.png' %}">
+    <title>UGA Assassins</title>
+
+  </head>
+  <body>
+
+    <main>
+        {% include './navbar.html' %}
+        <div class="text-center">
+        <h6 class="text-muted">Only players with >= 1 kill will be shown here</h6>
+        </div>
+        <div class="card text-center" style="width: 80%; margin-left: 10%;">
+            <div class="card-body">
+                <h2 class="card-title">Leaderboard</h2>
+                <div class="row border-bottom" style="margin-bottom: 10px;">
+                    <div class="col">Placement</div>
+                    <div class="col-6">Name</div>
+                    <div class="col">Kills</div>
+                </div>
+                {% for player in leaderboard %}
+                    <div class="row border-bottom">
+                        <div style=" overflow: auto; white-space: nowrap;" class="col">
+                            <p style="margin-top: 5px; ">{{player.placement}}</p>
+                        </div>
+                        <div style="overflow: auto; white-space: nowrap;" class="col-6">
+                            <p style="margin-top: 5px; ">{{player.name | safe}}</p>
+                        </div>
+                        <div style=" overflow: auto; white-space: nowrap;" class="col">
+                            <p style="margin-top: 5px; ">{{player.kills}}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </main>
+</body>
+</html>

@@ -18,8 +18,8 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 from start_page.views import rules, home
-from login.views import signup, login, logout, verify_pin, upload_image
-from target.views import target, kill_report, stats, confirm_kill_page, confirm_kill_agree, confirm_kill_deny
+from login.views import signup, login, logout, verify_pin, upload_image, game_admin
+from target.views import target, kill_report, stats, confirm_kill_page, confirm_kill_agree, confirm_kill_deny, leaderboard, kill_feed
 
 urlpatterns = [
     path('home/', home, name="home"),
@@ -36,5 +36,8 @@ urlpatterns = [
     path('confirm', confirm_kill_agree, name="confirm"),
     path('deny', confirm_kill_deny, name="deny"),
     path('admin/', admin.site.urls),
+    path('gameadmin/', game_admin, name="gameadmin"),
+    path('leaderboard',leaderboard, name="leaderboard"),
+    path('killfeed',kill_feed, name="killfeed"),
     path('', home, name="homepage"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

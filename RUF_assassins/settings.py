@@ -20,7 +20,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 #ROUND_1_START = datetime(year=2022, month=3, day=7, hour=23, minute=59, second=59)
-ROUND_1_START = datetime(year=2022, month=3, day=18, hour=23, minute=59, second=59)
+SIGN_UP_CLOSE = datetime(year=2022, month=3, day=18, hour=16, minute=59, second=59)
+
+ROUND_1_START = datetime(year=2022, month=3, day=19, hour=3, minute=59, second=59)
 ROUND_1_END = datetime(year=2022, month=3, day=25, hour=23, minute=59, second=59)
 
 
