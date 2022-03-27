@@ -38,7 +38,7 @@
                         {% endif %}
                     </div>
                     <div class="row border-bottom">
-                        <p style="width: 80%; margin-left: 10%; margin-top: 15px; text-align: left;" class="text-muted text-left">{{kill.desc}}</p>
+                        <p style="width: 80%; margin-left: 10%; margin-top: 15px; text-align: left;" class="text-muted text-left">{{kill.desc | safe}}</p>
                     </div>
                 {% endfor %}
             </div>

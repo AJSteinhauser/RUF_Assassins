@@ -126,6 +126,8 @@ def confirm_kill_agree(request):
             if plr.current_target == userobj.user_id: 
                 targetPlayer = plr;
                 break;
+        print(targetPlayer.user_id)
+        print(userobj.user_id)
         killobj = Kill.objects.get(killer_id = targetPlayer.user_id, victim_id = userobj.user_id)
         killobj.confirmed = True;
         targetPlayer.kill_verifying = False;
@@ -211,6 +213,8 @@ def stats(request):
     context = {}
     kill_list = list(Kill.objects.all().order_by('-report_time_submitted'))
     plr_list = list(User.objects.all().order_by('-total_kills'))
+
+    
     
     if (datetime.now() - settings.ROUND_1_START).total_seconds() <= 0: 
         context["message"] = "Game has not started yet.\n Check back here after " + settings.ROUND_1_START.strftime("%A, %B %-d at %I:%M %p")
@@ -219,7 +223,7 @@ def stats(request):
         context["message"] = "There have been no kills yet. Check back here after first blood."
         return render(request, 'live_stats.html',context)
     context['round_end'] = settings.ROUND_1_END.strftime("%A, %B %-d at %I:%M %p")
-    context['round_end_togo'] = int(divmod((settings.ROUND_1_END - datetime.now()).total_seconds(), 3600)[0])
+    context['round_end_togo'] = max(0,int(divmod((settings.ROUND_1_END - datetime.now()).total_seconds(), 3600)[0]))
 
     plr_counter = 0;
     kill_leader_count = -1
@@ -240,6 +244,8 @@ def stats(request):
                 'kills' : plr.total_kills,
                 'placement' : i + 1
             }
+            if not plr.alive:
+                leader_info['name'] = "<i><strike>" + leader_info['name'] + "</strike></i>"
             leaderboard.append(leader_info)
             i = i + 1
 
@@ -253,11 +259,12 @@ def stats(request):
     kill_stream = []
     for obj in kill_list:
         if obj.confirmed:
-            location = {
-                'lat' : obj.lat,
-                'long' : obj.long,
-            } 
-            context['death_points'].append(location)
+            if obj.lat != 0:
+                location = {
+                    'lat' : obj.lat,
+                    'long' : obj.long,
+                } 
+                context['death_points'].append(location)
             if i == 0: 
                 context['recent_kill_portrait'] = User.objects.get(user_id=obj.victim_id).phone_num
                 context['recent_kill_name'] = obj.victim_name

@@ -12,9 +12,13 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 from datetime import datetime
+import pytz
+
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+
+TIMEZONE = pytz.timezone("US/Eastern")
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -22,8 +26,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 #ROUND_1_START = datetime(year=2022, month=3, day=7, hour=23, minute=59, second=59)
 SIGN_UP_CLOSE = datetime(year=2022, month=3, day=18, hour=16, minute=59, second=59)
 
-ROUND_1_START = datetime(year=2022, month=3, day=19, hour=3, minute=59, second=59)
-ROUND_1_END = datetime(year=2022, month=3, day=25, hour=23, minute=59, second=59)
+ROUND_1_START = (datetime(year=2022, month=3, day=18, hour=11, minute=59, second=59))
+ROUND_1_END = (datetime(year=2022, month=3, day=25, hour=23, minute=59, second=59))
 
 
 # Quick-start development settings - unsuitable for production

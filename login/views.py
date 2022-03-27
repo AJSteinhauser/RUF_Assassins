@@ -12,6 +12,7 @@ from PIL import Image, ExifTags
 from django.shortcuts import redirect
 from .forms import NewUserForm
 from .models import User
+from target.models import Kill
 from start_page.views import home
 from django.conf import settings
 from target.views import add_kill_status
@@ -203,8 +204,40 @@ def upload_image(request):
     return render(request, 'upload_image.html', context)
 
 def execute_admin_command(command):
+    command = command.lower()
     if command == "testing":
         return "test command"
+    elif command == "unconfirmed kills":
+        kill_list = list(Kill.objects.all())
+        string = ""
+        for kill in kill_list:
+            if not kill.confirmed:
+                string = string + str(kill)
+        return string
+
+    elif command == "kill round 1":
+        plr_list = list(User.objects.all())
+        string = ""
+        for plr in plr_list:
+            if plr.alive:
+                if plr.kills_this_round == 0:
+                    string = string + str(plr)
+                    obj = Kill(
+                        killer_id = 1,
+                        killer_name = "Spencer 🐶",
+                        victim_id = plr.user_id,
+                        report_time_submitted = settings.TIMEZONE.localize(datetime.now()),
+                        victim_name = plr.first_name + ' ' + plr.last_name, 
+                        lat = 0,
+                        long = 0,
+                        description = "Spencer 🐶: " + 'GRRR, GRRR, RUFFFF RUFFFF. <p class="text-center fw-lighter">' + plr.first_name + ' failed to get a kill before the end of round 1</p>', 
+                        confirmed = True
+                    )
+                    obj.save()
+                    plr.alive = False;
+                    plr.save()
+                    send_text(plr.phone_num,"You have been eliminated for failing to kill 1 target before friday at 11:59")
+        return string
     elif command == "confirm playing":
         plr_list = list(User.objects.all())
         for plr in plr_list:
@@ -232,8 +265,21 @@ def execute_admin_command(command):
                 send_text(plr.phone_num, "Your account phone number must be verifed by" + settings.ROUND_1_START.strftime("%A, %B %-d at %I:%M %p") + "else your account will be deleted ajsteinhauser.org/verify")
             if not plr.image_uploaded:
                 send_text(plr.phone_num, "You must upload a profile image by" + settings.ROUND_1_START.strftime("%A, %B %-d at %I:%M %p") + "else your account will be deleted. ajsteinhauser.org/profileimage")
-    elif command == "assign targets please dont":
+    elif command == "clear current kills":
         plr_list = list(User.objects.all())
+        for plr in plr_list:
+            if plr.alive:
+                plr.kills_this_round = 0;
+                plr.save();
+        return "Kills cleared"
+    
+    elif command == "assign targets":
+        plr_list = list(User.objects.all())
+        newlist = []
+        for plr in plr_list:
+            if plr.alive:
+                newlist.append(plr)
+        plr_list = newlist
         length = len(plr_list)
         circle = SCLL()
         while len(plr_list) > 0:
@@ -247,7 +293,7 @@ def execute_admin_command(command):
             circle.data.current_target = circle.next.data.user_id
             circle.data.save()
             circle = circle.next
-        print(target_list)
+        return target_list
     elif command == "start game":
         plr_list = list(User.objects.all())
         for plr in plr_list:
